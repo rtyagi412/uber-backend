@@ -18,8 +18,8 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 public class RideDto {
     private Long id;
-    private Point pickUpLocation;
-    private Point dropOffLocation;
+    private PointDto pickUpLocation;
+    private PointDto dropOffLocation;
     private RiderDto rider;
     private DriverDto driver;
     private LocalDateTime CreatedAt;

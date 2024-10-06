@@ -11,14 +11,14 @@ import com.taxi.uber.enums.RideRequestStatus;
 import com.taxi.uber.repositories.RideRequestRepository;
 import com.taxi.uber.repositories.RiderRepository;
 import com.taxi.uber.services.RiderService;
-import com.taxi.uber.strategies.DriverMatchingStrategy;
-import com.taxi.uber.strategies.RideFareCalculationStrategy;
+import com.taxi.uber.strategies.StrategyManager;
 import lombok.AllArgsConstructor;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+import java.lang.module.ResolutionException;
 import java.util.List;
 
 @Service
@@ -27,19 +27,20 @@ import java.util.List;
 public class RiderServiceImp implements RiderService {
 
     private final ModelMapper modelMapper;
-    private final RideFareCalculationStrategy rideFareCalculationStrategy;
-    private final DriverMatchingStrategy driverMatchingStrategy;
+    private final StrategyManager strategyManager;
     private final RideRequestRepository rideRequestRepository;
     private final RiderRepository riderRepository;
 
     @Override
+    @Transactional
     public RideRequestDto requestRide(RideRequestDto rideRequestDto) {
         RideRequest rideRequest=modelMapper.map(rideRequestDto, RideRequest.class);
         rideRequest.setRideRequestStatus(RideRequestStatus.PENDING);
-        double fare=rideFareCalculationStrategy.calculateFare(rideRequest);
+        rideRequest.setRider(getCurrentRider());
+        double fare=strategyManager.rideFareCalculationStrategy().calculateFare(rideRequest);
         rideRequest.setFare(fare);
         RideRequest savedRequest=rideRequestRepository.save(rideRequest);
-        driverMatchingStrategy.findMatchingDriver(rideRequest);
+        strategyManager.driverMatchingStrategy(getCurrentRider().getRating()).findMatchingDriver(rideRequest);
         return modelMapper.map(savedRequest,RideRequestDto.class);
     }
 
@@ -66,5 +67,11 @@ public class RiderServiceImp implements RiderService {
     public Rider createNewRider(User user){
         Rider rider=Rider.builder().user(user).rating(0.0).build();
         return riderRepository.save(rider);
+    }
+
+    @Override
+    public Rider getCurrentRider() {
+        //TO DO
+        return riderRepository.findById(1L).orElseThrow(()->new ResolutionException("Rider not found with id"));
     }
 }

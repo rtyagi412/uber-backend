@@ -4,6 +4,7 @@ import com.taxi.uber.dto.RideDto;
 import com.taxi.uber.dto.RideRequestDto;
 import com.taxi.uber.entities.Driver;
 import com.taxi.uber.entities.Ride;
+import com.taxi.uber.entities.RideRequest;
 import com.taxi.uber.enums.RideStatus;
 import org.locationtech.jts.geom.Point;
 import org.springframework.data.domain.PageRequest;
@@ -17,9 +18,9 @@ public interface RideService {
 
     void matchWithDrivers(RideRequestDto rideRequestDto);
 
-    Ride createNewRide(RideRequestDto rideRequestDto, Driver driver);
+    Ride createNewRide(RideRequest rideRequest, Driver driver);
 
-    Ride updateRideStatus(Long rideId, RideStatus rideStatus);
+    Ride updateRideStatus(Ride ride, RideStatus rideStatus);
 
     List<Ride> getAllRidesOfRider(Long riderId, PageRequest pageRequest);
 

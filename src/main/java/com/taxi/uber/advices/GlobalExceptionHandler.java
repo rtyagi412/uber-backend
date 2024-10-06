@@ -28,7 +28,7 @@ public class GlobalExceptionHandler {
         return buildErrorResponseEntity(apiError);
     }
 
-    private ResponseEntity buildErrorResponseEntity(ApiError apiError){
+    private ResponseEntity<ApiResponse<?>> buildErrorResponseEntity(ApiError apiError){
         return new ResponseEntity<>(new ApiResponse<>(apiError),apiError.getStatus());
     }
 }
